@@ -1,1 +1,4 @@
-from core import connect, DEFAULT_HOST, DEFAULT_PORT
+import cli
+from core import ReadableStream, WritableStream
+
+__version__ = cli.VERSION
