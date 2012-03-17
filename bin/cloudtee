@@ -1,0 +1,35 @@
+#!env python
+
+import cloudtee
+
+import argparse
+import sys
+
+
+def get_options():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('topic', type=str)
+    parser.add_argument('--host', type=str, 
+                        default=cloudtee.DEFAULT_HOST)
+    parser.add_argument('--port', type=int, 
+                        default=cloudtee.DEFAULT_PORT)
+    return parser.parse_args()
+
+
+def read_stdin():
+
+    def _read_chunk():
+        return sys.stdin.readline()
+
+    chunk = _read_chunk()
+    while chunk:
+        yield chunk
+        chunk = _read_chunk()
+
+
+if __name__ == "__main__":
+    args = get_options()    
+    conn = cloudtee.connect(args.topic, host=args.host, port=args.port) 
+    for chunk in read_stdin():
+        conn.send(chunk)
+        sys.stdout.write(chunk)
