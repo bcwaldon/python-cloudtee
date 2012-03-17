@@ -1,0 +1,17 @@
+#!env python
+
+import sys
+
+import cloudtee
+import cloudtee.cli
+
+
+if __name__ == "__main__":
+    parser = cloudtee.cli.get_option_parser()    
+    args = parser.parse_args()
+    stream = cloudtee.ReadableStream(args.host, args.port, args.topic)
+    try:
+        for chunk in stream.read():
+            sys.stdout.write(chunk)
+    except KeyboardInterrupt:
+        stream.close()

@@ -1,19 +1,9 @@
 #!env python
 
-import cloudtee
-
-import argparse
 import sys
 
-
-def get_options():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('topic', type=str)
-    parser.add_argument('--host', type=str, 
-                        default=cloudtee.DEFAULT_HOST)
-    parser.add_argument('--port', type=int, 
-                        default=cloudtee.DEFAULT_PORT)
-    return parser.parse_args()
+import cloudtee
+import cloudtee.cli
 
 
 def read_stdin():
@@ -28,8 +18,12 @@ def read_stdin():
 
 
 if __name__ == "__main__":
-    args = get_options()    
-    conn = cloudtee.connect(args.topic, host=args.host, port=args.port) 
-    for chunk in read_stdin():
-        conn.send(chunk)
-        sys.stdout.write(chunk)
+    parser = cloudtee.cli.get_option_parser()    
+    args = parser.parse_args()
+    stream = cloudtee.WritableStream(args.host, args.port, args.topic)
+    try:
+        for chunk in read_stdin():
+            stream.write(chunk)
+            sys.stdout.write(chunk)
+    except KeyboardInterrupt:
+        stream.close()
